@@ -111,7 +111,11 @@ const street = addressBigData.road || addressRevGeo.road || "Unknown"
 const house = addressBigData.house_number || addressRevGeo.house_number || "Unknown"
 const suburb = addressBigData.suburb || addressRevGeo.suburb || "Unknown"
 const village = addressBigData.village || addressRevGeo.village || "Unknown"
-const regency = addressBigData.county || addressRevGeo.county || addressRevGeo.district || "Unknown"
+const regency =
+  (bigDataGeo.localityInfo?.administrative?.find(a => a.order === 3)?.name) ||
+  addressRevGeo.county ||
+  addressRevGeo.district ||
+  "Unknown";
 const state = addressBigData.state || addressRevGeo.state || "Unknown"
 
 const locationDetail = `
